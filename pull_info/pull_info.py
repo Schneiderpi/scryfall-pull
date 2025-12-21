@@ -2,7 +2,6 @@ import click
 import requests
 import tqdm
 import csv
-import enum
 from valid_output_columns import valid_output_columns
 
 
@@ -19,4 +18,4 @@ def pull():
     """
     Given a list of card names or other search parameters, pulls specified information from Scryfall.
     """
-    print("Hello")
+    pass
