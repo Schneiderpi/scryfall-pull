@@ -63,8 +63,26 @@ class Card():
         "preview.source"
     ]
 
-    def __init__(self,json):
-        self.from_json(json)
+    def __init__(self,scryfall_response,columns,image=False):
+        self.columns = columns
+        self.image = image
 
-    def from_json(self,json):
-        print(json)
+        self.from_json(scryfall_response)
+
+        if image:
+            self.get_image_info(scryfall_response)
+        
+    def from_json(self,scryfall_response):
+        self.card = {}
+
+        for column in self.valid_output_columns:
+            if column in scryfall_response and (self.columns is None or column in self.columns):
+                self.card[column] = scryfall_response[column]
+
+        self.card["id"] = scryfall_response["id"]
+
+    def get_card(self):
+        return self.card
+
+    def get_image_info(self,scryfall_response):
+        pass
