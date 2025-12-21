@@ -1,3 +1,4 @@
+import json
 
 class Card():
     valid_output_columns = [
@@ -62,5 +63,8 @@ class Card():
         "preview.source"
     ]
 
-    def __init__():
-        pass
+    def __init__(self,json):
+        self.from_json(json)
+
+    def from_json(self,json):
+        print(json)
