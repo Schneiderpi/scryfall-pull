@@ -5,8 +5,8 @@ name = "pypi"
 
 [packages]
 requests = "*"
-click = "*"
 tqdm = "*"
+click = "*"
 
 [dev-packages]
 
