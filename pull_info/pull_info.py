@@ -21,7 +21,7 @@ courtesy_wait = 100 #Time in ms to wait between requests, Scryfall requests betw
 @click.option("-s", "--search", type=str,multiple=True,help="Parameters to search by, see full documentation for formatting. Can be provided multiple times.") #TODO
 @click.option("-i", "--input",type=click.Path(exists=True,dir_okay=False),help="Input filename for a list of cards to return information for, each card should be on its own line")
 @click.option("-c", "--columns",type=click.Choice(Card.valid_output_columns),multiple=True,help="Output column information to include, can be specified multiple times. See https://scryfall.com/docs/api/cards Default is everything but images, which is handled separately")
-@click.option("-ci", "--column-file",type=click.Path(exists=True,dir_okay=False),help="Path to a file which contains output wanted output columns each contained on their own separate line, see -c command for valid column options") #TODO
+@click.option("-ci", "--column-file",type=click.Path(exists=True,dir_okay=False),help="Path to a file which contains output wanted output columns each contained on their own separate line, see -c command for valid column options")
 @click.option("--max",type=int,help="Max cards to pull",default=-1) #TODO
 @click.option("--image",type=bool,help="Whether to include image information in output. For now this is in the format =IMAGE(url) for use with Google Sheets") #TODO
 def pull(out,search,input,columns,column_file,max,image):
@@ -29,6 +29,10 @@ def pull(out,search,input,columns,column_file,max,image):
     Given a list of card names or other search parameters, pulls specified information from Scryfall.
     """
     card_names = []
+
+    if column_file is not None:
+        with open(column_file) as f:
+            columns = [line.strip() for line in f]
 
     if len(columns) == 0:
         columns = Card.valid_output_columns
@@ -47,7 +51,7 @@ def pull(out,search,input,columns,column_file,max,image):
         for card in cards:
             print(card.get_card())
     else:
-        with open(out, 'w') as f:
+        with open(out, 'w',newline="\n") as f:
             writer = csv.writer(f)
 
             #Header
