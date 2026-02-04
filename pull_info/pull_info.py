@@ -22,7 +22,6 @@ courtesy_wait = 100 #Time in ms to wait between requests, Scryfall requests betw
 @click.option("-i", "--input",type=click.Path(exists=True,dir_okay=False),help="Input filename for a list of cards to return information for, each card should be on its own line")
 @click.option("-c", "--columns",type=click.Choice(Card.valid_output_columns),multiple=True,help="Output column information to include, can be specified multiple times. See https://scryfall.com/docs/api/cards Default is everything but images, which is handled separately")
 @click.option("-ci", "--column-file",type=click.Path(exists=True,dir_okay=False),help="Path to a file which contains output wanted output columns each contained on their own separate line, see -c command for valid column options")
-@click.option("--max",type=int,help="Max cards to pull",default=-1) #TODO
 @click.option("--image",type=bool,help="Whether to include image information in output. For now this is in the format =IMAGE(url) for use with Google Sheets") #TODO
 def pull(out,search,input,columns,column_file,max,image):
     """
