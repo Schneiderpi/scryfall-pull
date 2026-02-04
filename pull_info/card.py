@@ -70,7 +70,7 @@ class Card():
         self.from_json(scryfall_response)
 
         if image:
-            self.get_image_info(scryfall_response)
+            self._get_image_from_scryfall(scryfall_response)
         
     def from_json(self,scryfall_response):
         self.card = {}
@@ -84,5 +84,10 @@ class Card():
     def get_card(self):
         return self.card
 
-    def get_image_info(self,scryfall_response):
-        pass
+    def get_image(self):
+        return '=IMAGE("{}",3)'.format(self.image_url)
+    
+    def _get_image_from_scryfall(self,scryfall_response):
+        uris = scryfall_response["image_uris"] if "image_uris" in scryfall_response else None
+
+        self.image_url = uris["large"]
