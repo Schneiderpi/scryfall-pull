@@ -105,6 +105,7 @@ class Card():
         return card
     
     def get_card(self):
+        self._merge_p_t()
         if not self.multifaced:
             return self.card
         else:
@@ -130,6 +131,21 @@ class Card():
         uris = scryfall_response["image_uris"] if "image_uris" in scryfall_response else None
         
         self.image_url = uris["normal"]
+
+    def _merge_p_t(self):
+        if not self.multifaced:
+            if "power" in self.card and "toughness" in self.card:
+                self.card["P/T"] = self.card["power"] + " / " + self.card["toughness"]
+
+                self.card.pop("power")
+                self.card.pop("toughness")
+        else:
+            for face in self.card:
+                if "power" in face and "toughness" in face:
+                    face["P/T"] = self.card["power"] + " / " + self.card["toughness"]
+
+                    face.pop("power")
+                    face.pop("toughness")
 
     def __str__(self):
         return self.get_card()
