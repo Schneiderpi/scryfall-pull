@@ -120,7 +120,7 @@ class Card():
                     elif column not in unified and i > 0:
                         unified[column] = "\\ " + face[column]
                     elif not unified[column] == face[column] and not face[column] == '':
-                        unified[column] = unified[column] + "\n\\\n" + face[column]
+                        unified[column] = unified[column] + "\n\\\\\n" + face[column]
 
             return unified
 

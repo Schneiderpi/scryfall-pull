@@ -50,16 +50,17 @@ def pull(out,search,input,columns,column_file,image):
         for card in cards:
             out = card.get_card()
             out.update({"images": card.get_image()})
-            
+
             print(out)
     else:
         with open(out, 'w',newline="\n") as f:
-            writer = csv.writer(f)
+            writer = csv.writer(f,quotechar='"',quoting=csv.QUOTE_MINIMAL)
 
             #Header
             header = list(cards[0].get_card().keys())[0:-1]
             if image:
                 header.append("Card Image")
+                
             
             writer.writerow(header)
 
