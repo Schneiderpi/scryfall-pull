@@ -67,20 +67,42 @@ class Card():
         self.columns = columns
         self.image = image
 
-        self.from_json(scryfall_response)
+        if "card_faces" in scryfall_response:
+            self.multifaced = True
+            self.card = self.from_json_multiface(scryfall_response)
+        else:
+            self.multifaced = False
+            self.card = self.from_json(scryfall_response)
+
+        print(self.card)
 
         if image:
             self._get_image_from_scryfall(scryfall_response)
         
     def from_json(self,scryfall_response):
-        self.card = {}
+        card = {}
 
         for column in self.valid_output_columns:
             if column in scryfall_response and (self.columns is None or column in self.columns):
-                self.card[column] = scryfall_response[column]
+                card[column] = scryfall_response[column]
 
-        self.card["id"] = scryfall_response["id"]
+        card["id"] = scryfall_response["id"]
 
+        return card
+    
+    def from_json_multiface(self,scryfall_response):
+        card = []
+
+        for _ in range(len(scryfall_response["card_faces"])):
+            card.append(self.from_json(scryfall_response))
+        
+        for face in scryfall_response["card_faces"]:
+            for column in self.valid_output_columns:
+                if column in scryfall_response["card_faces"] and (self.columns is None or column in self.columns):
+                    face[column] = scryfall_response[column]
+
+        return card
+    
     def get_card(self):
         return self.card
 
