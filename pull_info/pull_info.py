@@ -42,7 +42,7 @@ def pull(out,search,input,columns,column_file,image):
 
     cards = []
     if len(card_names) > 0:
-        for card in card_names:
+        for card in tqdm(card_names):
             cards.append(Card(pull_card(card),columns,image=image))
             sleep(courtesy_wait/1000)
 
