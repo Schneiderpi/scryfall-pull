@@ -128,7 +128,7 @@ class Card():
             return ['=IMAGE("{}",1)'.format(url) for url in self.image_url]
     
     def _get_image_from_scryfall(self,scryfall_response):
-        if not self.multifaced or scryfall_response["layout"] == "split" or scryfall_response["layout"] == "adventure":
+        if not self.multifaced or scryfall_response["layout"] in ["split","adventure"]:
             self.image_url = [scryfall_response["image_uris"]["normal"]]
         else:
             print(scryfall_response)
