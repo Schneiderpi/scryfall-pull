@@ -125,14 +125,11 @@ class Card():
             return unified
 
     def get_image(self):
-        if not self.multifaced:
-            return '=IMAGE("{}",1)'.format(self.image_url)
-        else:
-            pass
+            return ['=IMAGE("{}",1)'.format(url) for url in self.image_url]
     
     def _get_image_from_scryfall(self,scryfall_response):
         if not self.multifaced:
-            self.image_url = scryfall_response["image_uris"]["normal"]
+            self.image_url = [scryfall_response["image_uris"]["normal"]]
         else:
             self.image_url = [face["image_uris"]["normal"] for face in scryfall_response["card_faces"]]
 

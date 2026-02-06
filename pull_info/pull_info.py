@@ -48,7 +48,10 @@ def pull(out,search,input,columns,column_file,image):
 
     if out is None:
         for card in cards:
-            print(card.get_card())
+            out = card.get_card()
+            out.update({"images": card.get_image()})
+            
+            print(out)
     else:
         with open(out, 'w',newline="\n") as f:
             writer = csv.writer(f)
@@ -64,7 +67,7 @@ def pull(out,search,input,columns,column_file,image):
                 row = list(card.get_card().values())[0:-1]
 
                 if image:
-                    row.append(card.get_image())
+                    row.extend(card.get_image())
 
                 writer.writerow(row)
 
