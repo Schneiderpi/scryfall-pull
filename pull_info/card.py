@@ -85,9 +85,9 @@ class Card():
         return self.card
 
     def get_image(self):
-        return '=IMAGE("{}",3)'.format(self.image_url)
+        return '=IMAGE("{}",1)'.format(self.image_url)
     
     def _get_image_from_scryfall(self,scryfall_response):
         uris = scryfall_response["image_uris"] if "image_uris" in scryfall_response else None
 
-        self.image_url = uris["large"]
+        self.image_url = uris["normal"]
