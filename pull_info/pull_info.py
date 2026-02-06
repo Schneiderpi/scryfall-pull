@@ -67,7 +67,7 @@ def pull(out,search,input,columns,column_file,image):
                         columns.pop(i)
                         break
     
-        with open(out, 'w',newline="\n") as f:
+        with open(out, 'w', encoding="utf8", newline="\n") as f:
             writer = csv.writer(f,quotechar='"',quoting=csv.QUOTE_MINIMAL)
 
             #Header

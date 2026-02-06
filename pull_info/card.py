@@ -131,7 +131,6 @@ class Card():
         if not self.multifaced or scryfall_response["layout"] in ["split","adventure"]:
             self.image_url = [scryfall_response["image_uris"]["normal"]]
         else:
-            print(scryfall_response)
             self.image_url = [face["image_uris"]["normal"] for face in scryfall_response["card_faces"]]
 
     def _merge_p_t(self):
