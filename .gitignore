@@ -1,0 +1,7 @@
+cards
+pull_info/__pycache__/
+*.csv
+columns
+pull_info/build/*
+pull_info/dist/*
+pull_info/pull_info.spec
