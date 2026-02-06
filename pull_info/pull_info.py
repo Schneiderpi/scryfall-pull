@@ -50,7 +50,9 @@ def pull(out,search,input,columns,column_file,image):
     if out is None:
         for card in cards:
             out = card.get_card()
-            out.update({"images": card.get_image()})
+
+            if image:
+                out.update({"images": card.get_image()})
 
             print(out)
     else:

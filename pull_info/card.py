@@ -82,8 +82,11 @@ class Card():
 
         for column in self.valid_output_columns:
             if column in scryfall_response and (self.columns is None or column in self.columns):
-                if type(scryfall_response[column]) is str and "//" not in scryfall_response[column]: #Ignore columns with multifaced output
-                    card[column] = scryfall_response[column]
+                if type(scryfall_response[column]) is not str or (type(scryfall_response[column]) is str and "//" not in scryfall_response[column]): #Ignore columns with multifaced output
+                    if type(scryfall_response[column]) is list:
+                        card[column] = ", ".join(scryfall_response[column])
+                    else:
+                        card[column] = scryfall_response[column]
 
         card["id"] = scryfall_response["id"]
 
