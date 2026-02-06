@@ -62,7 +62,7 @@ def pull(out,search,input,columns,column_file,image):
                 if columns[i] == "power" or columns[i] == "toughness":
                     if not found:
                         columns.pop(i)
-                        columns.insert(i,"P / T")
+                        columns.insert(i,"P/T")
 
                         found = True
                     else:
