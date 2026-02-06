@@ -6,6 +6,7 @@ import csv
 from requests.compat import urljoin
 from time import sleep
 from tqdm import tqdm
+from copy import deepcopy
 
 from card import Card
 
@@ -45,7 +46,7 @@ def pull(out,search,input,columns,column_file,image):
         for card in tqdm(card_names):
             cards.append(Card(pull_card(card),columns,image=image))
             sleep(courtesy_wait/1000)
-
+    
     if out is None:
         for card in cards:
             out = card.get_card()
@@ -53,11 +54,24 @@ def pull(out,search,input,columns,column_file,image):
 
             print(out)
     else:
+        if "power" in columns and "toughness" in columns:
+            found = False
+            for i in range(len(columns)):
+                if columns[i] == "power" or columns[i] == "toughness":
+                    if not found:
+                        columns.pop(i)
+                        columns.insert(i,"P / T")
+
+                        found = True
+                    else:
+                        columns.pop(i)
+                        break
+    
         with open(out, 'w',newline="\n") as f:
             writer = csv.writer(f,quotechar='"',quoting=csv.QUOTE_MINIMAL)
 
             #Header
-            header = list(cards[0].get_card().keys())[0:-1]
+            header = deepcopy(columns)
             if image:
                 header.append("Card Image")
                 
@@ -65,7 +79,14 @@ def pull(out,search,input,columns,column_file,image):
             writer.writerow(header)
 
             for card in tqdm(cards):
-                row = list(card.get_card().values())[0:-1]
+                data = card.get_card()
+                row = []
+
+                for column in columns:
+                    if column in data:
+                        row.append(data[column])
+                    else:
+                        row.append("")
 
                 if image:
                     row.extend(card.get_image())
