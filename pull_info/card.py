@@ -110,12 +110,18 @@ class Card():
         else:
             unified = {}
 
-            for face in self.card:
+            for i in range(len(self.card)):
+                face = self.card[i]
+
                 for column in face:
-                    if column not in unified:
+                    if column not in unified and i == 0:
                         unified[column] = face[column]
-                    else:
-                        unified[column] = unified[column] + "\\\\\n" + face[column]
+                    elif column not in unified and i > 0:
+                        unified[column] = "\\ " + face[column]
+                    elif not unified[column] == face[column] and not face[column] == '':
+                        unified[column] = unified[column] + "\n\\\n" + face[column]
+
+            return unified
 
     def get_image(self):
         return '=IMAGE("{}",1)'.format(self.image_url)
