@@ -47,7 +47,7 @@ def pull(out,search,input,columns,column_file,image):
             sleep(courtesy_wait/1000)
 
     if out is None:
-        for card in tqdm(cards):
+        for card in cards:
             print(card.get_card())
     else:
         with open(out, 'w',newline="\n") as f:

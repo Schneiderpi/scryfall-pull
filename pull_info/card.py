@@ -74,8 +74,6 @@ class Card():
             self.multifaced = False
             self.card = self.from_json(scryfall_response)
 
-        print(self.card)
-
         if image:
             self._get_image_from_scryfall(scryfall_response)
         
@@ -84,7 +82,8 @@ class Card():
 
         for column in self.valid_output_columns:
             if column in scryfall_response and (self.columns is None or column in self.columns):
-                card[column] = scryfall_response[column]
+                if type(scryfall_response[column]) is str and "//" not in scryfall_response[column]: #Ignore columns with multifaced output
+                    card[column] = scryfall_response[column]
 
         card["id"] = scryfall_response["id"]
 
@@ -96,15 +95,27 @@ class Card():
         for _ in range(len(scryfall_response["card_faces"])):
             card.append(self.from_json(scryfall_response))
         
-        for face in scryfall_response["card_faces"]:
+        for i in range(len(scryfall_response["card_faces"])):
+            face = scryfall_response["card_faces"][i]
+
             for column in self.valid_output_columns:
-                if column in scryfall_response["card_faces"] and (self.columns is None or column in self.columns):
-                    face[column] = scryfall_response[column]
+                if column in face and (self.columns is None or column in self.columns):
+                    card[i][column] = face[column]
 
         return card
     
     def get_card(self):
-        return self.card
+        if not self.multifaced:
+            return self.card
+        else:
+            unified = {}
+
+            for face in self.card:
+                for column in face:
+                    if column not in unified:
+                        unified[column] = face[column]
+                    else:
+                        unified[column] = unified[column] + "\\\\\n" + face[column]
 
     def get_image(self):
         return '=IMAGE("{}",1)'.format(self.image_url)
