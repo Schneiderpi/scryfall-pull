@@ -142,7 +142,7 @@ class Card():
         else:
             for face in self.card:
                 if "power" in face and "toughness" in face:
-                    face["P/T"] = self.card["power"] + " / " + self.card["toughness"]
+                    face["P/T"] = face["power"] + " / " + face["toughness"]
 
                     face.pop("power")
                     face.pop("toughness")
