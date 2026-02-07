@@ -17,14 +17,22 @@ common_headers = {"User-Agent": "ScryfallPull/.1", "accept": "application/json"}
 
 courtesy_wait = 100 #Time in ms to wait between requests, Scryfall requests between 50-100ms_
 
+rarity_single = {
+    "mythic": "M",
+    "rare": "R",
+    "uncommon": "U",
+    "common": "C"
+}
+
 @click.command()
 @click.option("-o", "--out", type=click.Path(dir_okay=False,writable=True),help="Filename to store output. Output will be in csv and file WILL BE OVERWRITTEN")
 @click.option("-s", "--search", type=str,multiple=True,help="Parameters to search by, see full documentation for formatting. Can be provided multiple times.") #TODO
 @click.option("-i", "--input",type=click.Path(exists=True,dir_okay=False),help="Input filename for a list of cards to return information for, each card should be on its own line")
 @click.option("-c", "--columns",type=click.Choice(Card.valid_output_columns),multiple=True,help="Output column information to include, can be specified multiple times. See https://scryfall.com/docs/api/cards Default is everything but images, which is handled separately")
 @click.option("-ci", "--column-file",type=click.Path(exists=True,dir_okay=False),help="Path to a file which contains output wanted output columns each contained on their own separate line, see -c command for valid column options")
-@click.option("--image",is_flag=True,help="Whether to include image information in output. For now this is in the format =IMAGE(url) for use with Google Sheets") #TODO
-def pull(out,search,input,columns,column_file,image):
+@click.option("--image",is_flag=True,help="Whether to include image information in output. For now this is in the format =IMAGE(url) for use with Google Sheets. For multiple printings this grabs the oldest printing that matches the rarity flag (if used) and avoids secret lair and universes beyond if possible")
+@click.option("--rarity",type=str,help="Rarity to use when determining between cards with multiple rarities. Note all input cards must have a valid printing of this rarity or an error will occur.")
+def pull(out,search,input,columns,column_file,image,rarity):
     """
     Given a list of card names or other search parameters, pulls specified information from Scryfall.
     """
@@ -44,13 +52,16 @@ def pull(out,search,input,columns,column_file,image):
     cards = []
     if len(card_names) > 0:
         for card in tqdm(card_names):
-            cards.append(Card(pull_card(card),columns,image=image))
+            cards.append(Card(pull_card(card),columns,image=image,rarity=rarity))
             sleep(courtesy_wait/1000)
     
     if out is None:
         for card in cards:
             out = card.get_card()
 
+            if "rarity" in out:
+                out["rarity"] = rarity_single[out["rarity"]]
+                
             if image:
                 out.update({"images": card.get_image()})
 
