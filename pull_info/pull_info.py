@@ -17,22 +17,16 @@ common_headers = {"User-Agent": "ScryfallPull/.1", "accept": "application/json"}
 
 courtesy_wait = 100 #Time in ms to wait between requests, Scryfall requests between 50-100ms_
 
-rarity_single = {
-    "mythic": "M",
-    "rare": "R",
-    "uncommon": "U",
-    "common": "C"
-}
-
 @click.command()
 @click.option("-o", "--out", type=click.Path(dir_okay=False,writable=True),help="Filename to store output. Output will be in csv and file WILL BE OVERWRITTEN")
 @click.option("-s", "--search", type=str,multiple=True,help="Parameters to search by, see full documentation for formatting. Can be provided multiple times.") #TODO
-@click.option("-i", "--input",type=click.Path(exists=True,dir_okay=False),help="Input filename for a list of cards to return information for, each card should be on its own line")
+@click.option("-i", "--input",type=click.Path(exists=True,dir_okay=False),required=True,help="Input filename for a list of cards to return information for, each card should be on its own line")
 @click.option("-c", "--columns",type=click.Choice(Card.valid_output_columns),multiple=True,help="Output column information to include, can be specified multiple times. See https://scryfall.com/docs/api/cards Default is everything but images, which is handled separately")
 @click.option("-ci", "--column-file",type=click.Path(exists=True,dir_okay=False),help="Path to a file which contains output wanted output columns each contained on their own separate line, see -c command for valid column options")
 @click.option("--image",is_flag=True,help="Whether to include image information in output. For now this is in the format =IMAGE(url) for use with Google Sheets. For multiple printings this grabs the oldest printing that matches the rarity flag (if used) and avoids secret lair and universes beyond if possible")
-@click.option("--rarity",type=str,help="Rarity to use when determining between cards with multiple rarities. Note all input cards must have a valid printing of this rarity or an error will occur.")
-def pull(out,search,input,columns,column_file,image,rarity):
+@click.option("--exclude-set",type=str,multiple=True,help="Set to exclude from printings, can be provided multiple times")
+@click.option("--default",type=click.Choice(["newest","oldest"]),help="How to choose which printing to use as the final printing output. Current choices are 'oldest' or 'newest'")
+def pull(out,search,input,columns,column_file,image,exclude_set,default):
     """
     Given a list of card names or other search parameters, pulls specified information from Scryfall.
     """
@@ -45,25 +39,35 @@ def pull(out,search,input,columns,column_file,image,rarity):
     if len(columns) == 0:
         columns = Card.valid_output_columns
 
-    if input is not None:
-        with open(input) as f:
-            card_names = [line.strip() for line in f]
-
     cards = []
-    if len(card_names) > 0:
-        for card in tqdm(card_names):
-            cards.append(Card(pull_card(card),columns,image=image,rarity=rarity))
+    with open(input) as f:
+        lines = f.readlines()
+
+
+    desired_rarity = None
+    desired_set = None
+    for line in tqdm(lines):
+        l = line.strip()
+        
+        if l.startswith("##"):
+            desired_set = l[2:].strip()
+            continue
+        elif l.startswith("#"):
+            desired_rarity = l[1:].strip()
+            continue
+        elif not l == "":
+            cards.append(Card(pull_card(l),columns,get_alternates=True,desired_rarity=desired_rarity,desired_set=desired_set))
             sleep(courtesy_wait/1000)
-    
+
+        if desired_set is not None:
+            desired_set = None
+
     if out is None:
         for card in cards:
-            out = card.get_card()
-
-            if "rarity" in out:
-                out["rarity"] = rarity_single[out["rarity"]]
+            out = card.get_card(exclude_sets=exclude_set,sort=default)
                 
-            if image:
-                out.update({"images": card.get_image()})
+            if not image:
+                out.pop("image")
 
             print(out)
     else:
@@ -79,30 +83,28 @@ def pull(out,search,input,columns,column_file,image,rarity):
                     else:
                         columns.pop(i)
                         break
-    
+        
+        if image:
+            columns.append("image")
+
         with open(out, 'w', encoding="utf8", newline="\n") as f:
             writer = csv.writer(f,quotechar='"',quoting=csv.QUOTE_MINIMAL)
 
             #Header
             header = deepcopy(columns)
-            if image:
-                header.append("Card Image")
-                
-            
             writer.writerow(header)
 
             for card in tqdm(cards):
-                data = card.get_card()
+                data = card.get_card(exclude_sets=exclude_set,sort=default)
                 row = []
-
+                
                 for column in columns:
-                    if column in data:
+                    if column == "image":
+                        row.extend(data["image"])
+                    elif column in data:
                         row.append(data[column])
                     else:
                         row.append("")
-
-                if image:
-                    row.extend(card.get_image())
 
                 writer.writerow(row)
 
